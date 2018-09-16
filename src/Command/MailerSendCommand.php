@@ -36,7 +36,7 @@ class MailerSendCommand extends Command implements ContainerAwareInterface
     {
         /**
          * Sending all messages from queue and removing them from she after send.
-         * Logging in mail.log file in __DIR__(current directory).
+         * Logging in /var/log/mail.log file.
          * To add this command in crontab u have to add in your crontabfile next string ->
          * '* * * * * php %PATH_TO_PROJECT%/bin/console mailer:send'
          * without apostrophs of course, and change %PATH_TO_PROJECT% on real path to project,
@@ -51,7 +51,7 @@ class MailerSendCommand extends Command implements ContainerAwareInterface
         $messages       = $repository->findAll();
         $entityManager  = $doctrine->getManager();
 
-        $logger->pushHandler(new StreamHandler(__DIR__ . '/mail.log', Logger::INFO));
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../var/log/mail.log', Logger::INFO));
 
         foreach ($messages as $message) {
             $messenger = $message->getSubscriber()->getMessenger()->getName();
@@ -79,7 +79,7 @@ class MailerSendCommand extends Command implements ContainerAwareInterface
 
         $entityManager->flush();
 
-        $io->success('Success! you can watch logs in /src/Command/mail.log file');
+        $io->success('Success! you can watch logs in /var/log/mail.log file');
     }
 
     private function sendMessageToWhatsApp() { /* TODO */ }
