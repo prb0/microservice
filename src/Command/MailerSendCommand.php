@@ -57,7 +57,7 @@ class MailerSendCommand extends Command implements ContainerAwareInterface
             }
 
             $logger->info("Сообщение пользователю '$subscriberName' отправлено в мессенджер $messenger");
-            // $entityManager->remove($message);
+            $entityManager->remove($message);
         }
 
         $entityManager->flush();
