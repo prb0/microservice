@@ -5,9 +5,8 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
-use App\Entity\Subscriber;
+use App\Services\MessageCreator;
 use App\Entity\Messenger;
-use App\Entity\Message;
 
 class MessageController extends AbstractController
 {
@@ -18,6 +17,7 @@ class MessageController extends AbstractController
     {
         /**
          * Generates page with form which creates the messages
+         * $messengers contains only messengers which has subscribers
          */
     	$repository = $this->getDoctrine()->getRepository(Messenger::class);
     	$messengers = $repository->findWhereHasSubscribers();
@@ -33,27 +33,12 @@ class MessageController extends AbstractController
     public function create(Request $request)
     {
         /**
-         * Inserts message[s] in queue
+         * Inserts message[s] in queue.
+         * Returns JSON string with succes or error data.
          */
-        $recipients     = $request->request->get('recipients');
-        $messageText    = $request->request->get('message');
-        $entityManager  = $this->getDoctrine()->getManager();
 
-        if ($recipients && $messageText) {
-            foreach ($recipients as $id) {
-                $subscriberRepository = $this->getDoctrine()->getRepository(Subscriber::class);
-                $recipient = $subscriberRepository->find($id);
-
-                $message = new Message($recipient, $messageText);
-                $entityManager->persist($message);
-            }
-            
-            $entityManager->flush();
-            
-            $response = ['success' => true, 'message' => 'Сообщение успешно добавлено'];
-        } else {
-            $response = ['success' => false, 'message' => 'Введены некорректные данные'];
-        }
+        $doctrine = $this->getDoctrine();
+        $response = MessageCreator::create($request, $doctrine);
 
         return $this->json($response);
     }

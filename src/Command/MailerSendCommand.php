@@ -14,10 +14,17 @@ use Monolog\Logger;
 
 class MailerSendCommand extends Command implements ContainerAwareInterface
 {
+    /**
+     * I have to realize ContainerAwareInterface by this trait.
+     * I do it because i have to call doctrine in this command.
+     */
     use ContainerAwareTrait;
 
     protected function configure()
     {
+        /**
+         * Configurations of command
+         */
         $this
             ->setName('mailer:send')
             ->setDescription('Sending messages from db table')
@@ -27,6 +34,16 @@ class MailerSendCommand extends Command implements ContainerAwareInterface
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        /**
+         * Sending all messages from queue and removing them from she after send.
+         * Logging in mail.log file in __DIR__(current directory).
+         * To add this command in crontab u have to add in your crontabfile next string ->
+         * '* * * * * php %PATH_TO_PROJECT%/bin/console mailer:send'
+         * without apostrophs of course, and change %PATH_TO_PROJECT% on real path to project,
+         * it will be send messages each minute.
+         * Or u can use this command manually, just open console in root project directory,
+         * type php bin/console mailer:send and press 'enter' on keyboard
+         */
         $io             = new SymfonyStyle($input, $output);
         $logger         = new Logger('mail');
         $doctrine       = $this->container->get('doctrine');
@@ -65,9 +82,9 @@ class MailerSendCommand extends Command implements ContainerAwareInterface
         $io->success('Success! you can watch logs in /src/Command/mail.log file');
     }
 
-    private function sendMessageToWhatsApp() {}
+    private function sendMessageToWhatsApp() { /* TODO */ }
 
-    private function sendMessageToViber() {}
+    private function sendMessageToViber() { /* TODO */ }
 
-    private function sendMessageToTelegram() {}
+    private function sendMessageToTelegram() { /* TODO */ }
 }

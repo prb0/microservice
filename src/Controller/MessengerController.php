@@ -16,7 +16,8 @@ class MessengerController extends AbstractController
 	public function getSubscribers(Request $request)
 	{
 		/**
-		 * Get all subscribers by messenger id
+		 * Get all subscribers by messenger id.
+		 * Returns JSON string with subscribers or if not found them - throws an exception
 		 */
 		$repository = $this->getDoctrine()->getRepository(Subscriber::class);
 		$subscriberObjects = $repository->findBy(['messenger' => $request->request->get('messengerId')]);

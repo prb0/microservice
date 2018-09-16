@@ -87,6 +87,9 @@
 						}
 					};
 
+				if (successBlock.html().length > 0) {
+					successBlock.html('');
+				}
 				sendAjaxRequest(path, 'POST', data, submitBtn, callback, errorBlock);
 				return false;
 			});

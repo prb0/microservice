@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -33,6 +33,7 @@ class SecurityController extends AbstractController
     {
         /**
          * Logout method, works without additional code in his body.
+         * Сonfigured in a file /config/packages/security.yaml
          */
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\DataFixtures;
 
-use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
-use App\Entity\Messenger;
+use Doctrine\Bundle\FixturesBundle\Fixture;
 use App\Entity\Subscriber;
+use App\Entity\Messenger;
 
 class SubscriberFixture extends Fixture
 {
