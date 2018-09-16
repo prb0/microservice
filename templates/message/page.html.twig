@@ -1,0 +1,149 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello!{% endblock %}
+
+{% block body %}
+<div class="container">
+	<div class="row">
+		<div class="col-12 mt-3">
+			<h1>Добавить сообщение</h1>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-3 mt-3">
+			<form id="message_creator" action="{{ path('messageCreate') }}" method="POST">
+				<span class="error"></span>
+				<span class="success"></span>
+				<div class="form-group">
+					<label for="messengers">Выбор мессенджера</label>
+					<select class="form-control" name="messengers" id="messengers">
+						<option value="*">Сделайте выбор</option>
+						{% for messenger in messengers %}
+							<option value="{{ messenger.id }}">{{ messenger.name }}</option>
+						{% endfor %}
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label for="recipients">Выбор получателей</label>
+					<select class="form-control" multiple="multiple" name="recipients[]" id="recipients">
+						
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label for="message">Текст сообщения</label>
+					<textarea class="form-control" id="message" name="message" placeholder="Введите сообщение"></textarea>
+				</div>
+
+				<div class="form-group">
+					<button class="btn btn-success form-control" type="submit">Отправить</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+	<script>
+		$(document).ready(function() {
+			// change #messenger input function
+			// replacing current subscribers on subscribers from selected messenger
+			$('#messengers').on('change', function() {
+				var input = $(this),
+					errorBlock = input.closest('form').find('.error'),
+					data = 'messengerId=' + input.val(),
+					path = "{{ path('getSubscribersByMessengerId') }}",
+					callback = function(data) {
+						var recipients = JSON.parse(data);
+
+						$('#recipients').find('option').remove();
+
+						$(recipients).each(function(key, recipient) {
+							$('#recipients').append('<option value="' + recipient.id + '">' + recipient.name + '</option>');
+						});
+					};
+
+				sendAjaxRequest(path, 'POST', data, input, callback, errorBlock);
+			});
+
+			// submit #message_creator function
+			// makes ajax request for inserts message[s] in queue
+			$('#message_creator').on('submit', function() {
+				var form = $(this),
+					errorBlock = form.find('.error'),
+					successBlock = form.find('.success'),
+					path = form.attr('action'),
+					data = form.serialize(),
+					submitBtn = form.find('[type="submit"]'),
+					callback = function(data) {
+						if (data.success) {
+							successBlock.html(data.message);
+							$('#recipients').find('option').remove();
+							form.trigger('reset');
+						} else {
+							errorBlock.html(data.message);
+						}
+					};
+
+				sendAjaxRequest(path, 'POST', data, submitBtn, callback, errorBlock);
+				return false;
+			});
+
+			// custom ajax function for this case
+			function sendAjaxRequest(url, type, data = false, elToDisable = false, callback = false, errorBlock = false) {
+				if (errorBlock.html().length > 0) {
+					errorBlock.html('');
+				}
+				$.ajax({
+					url: url,
+					type: type,
+					data: data,
+					beforeSend: function() {
+						if (elToDisable) {
+							elToDisable.prop('disabled', true);
+						}
+					},
+					error: function() {
+						if (errorBlock) {
+							// this error can be occured in situations when user try to send wrong data ->
+							// -> [try to hack or something else]
+							// or if some problems gonna happen on a server, but i just write common text for all cases
+							// since mistakes are not implied in situations where the user is bona fide
+							// or where server is have no problems, so the details of error are superfluous.
+							errorBlock.html('Неизвестная ошибка, попробуйте снова.');
+						}
+						if (elToDisable) {
+							elToDisable.prop('disabled', false);
+						}
+					},
+					success: function(data) {
+						if (callback) {
+							callback(data);
+						}
+						if (elToDisable) {
+							elToDisable.prop('disabled', false);
+						}
+					}
+				});
+			}
+		});
+	</script>
+{% endblock %}
+
+{% block stylesheets %}
+	<style>
+		.error {
+			font-size: 16px;
+			font-weight: bold;
+			color: red;
+		}
+
+		.success {
+			font-size: 16px;
+			font-weight: bold;
+			color: green;
+		}
+	</style>
+{% endblock %}
