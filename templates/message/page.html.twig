@@ -17,7 +17,7 @@
 				<div class="form-group">
 					<label for="messengers">Выбор мессенджера</label>
 					<select class="form-control" name="messengers" id="messengers">
-						<option value="*">Сделайте выбор</option>
+						<option value="empty">Сделайте выбор</option>
 						{% for messenger in messengers %}
 							<option value="{{ messenger.id }}">{{ messenger.name }}</option>
 						{% endfor %}
@@ -52,13 +52,20 @@
 			// replacing current subscribers on subscribers from selected messenger
 			$('#messengers').on('change', function() {
 				var input = $(this),
-					errorBlock = input.closest('form').find('.error'),
-					data = 'messengerId=' + input.val(),
+					inputValue = input.val();
+
+				if (inputValue == 'empty') {
+					clearRecipients();
+					return false;
+				}
+
+				var	errorBlock = input.closest('form').find('.error'),
+					data = 'messengerId=' + inputValue,
 					path = "{{ path('getSubscribersByMessengerId') }}",
 					callback = function(data) {
 						var recipients = JSON.parse(data);
 
-						$('#recipients').find('option').remove();
+						clearRecipients();
 
 						$(recipients).each(function(key, recipient) {
 							$('#recipients').append('<option value="' + recipient.id + '">' + recipient.name + '</option>');
@@ -80,7 +87,7 @@
 					callback = function(data) {
 						if (data.success) {
 							successBlock.html(data.message);
-							$('#recipients').find('option').remove();
+							clearRecipients();
 							form.trigger('reset');
 						} else {
 							errorBlock.html(data.message);
@@ -130,6 +137,10 @@
 						}
 					}
 				});
+			}
+
+			function clearRecipients() {
+				$('#recipients').find('option').remove();
 			}
 		});
 	</script>

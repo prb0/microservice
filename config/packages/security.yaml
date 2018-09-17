@@ -23,6 +23,7 @@ security:
             logout:
                 path: /logout
                 target: /login
+            http_basic: ~
 
 
     # Easy way to control access for large sections of your site
